@@ -1,0 +1,28 @@
+local s,id=GetID()
+function s.initial_effect(c)
+	Gacha2.UnitCharacter(c)
+	Gacha3.BattlePhaseUnit(c)
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+	e1:SetRange(LOCATION_ONFIELD)
+	e1:SetCode(EFFECT_UPDATE_ATTACK)
+	e1:SetCondition(s.fccondition)
+	e1:SetValue(100)
+	c:RegisterEffect(e1)
+	local e2=e1:Clone()
+	e2:SetCode(EFFECT_UPDATE_DEFENSE)
+	c:RegisterEffect(e2)
+	--Count attacks declared
+	aux.GlobalCheck(s,function()
+		local ge1=Effect.CreateEffect(c)
+		ge1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+		ge1:SetCode(EVENT_ATTACK_ANNOUNCE)
+		ge1:SetOperation(function(_,_,_,ep) Duel.RegisterFlagEffect(ep,id,RESET_PHASE|PHASE_END,0,1) end)
+		Duel.RegisterEffect(ge1,0)
+	end)
+end
+function s.fccondition(e)
+	local c=e:GetHandler()
+	return (Duel.GetAttacker()==c or c:IsSetCard(0xa04)) and Duel.GetFlagEffect(0,id)+Duel.GetFlagEffect(1,id)==1
+end
