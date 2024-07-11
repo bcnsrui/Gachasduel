@@ -214,11 +214,11 @@ function s.TurnPositionop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()	
 	local sg1=Duel.GetMatchingGroup(s.TurnPositionfilter1,tp,LOCATION_ONFIELD,0,nil)
 	local sg2=Duel.GetMatchingGroup(s.TurnPositionfilter2,tp,LOCATION_ONFIELD,0,nil)
-	if Duel.IsTurnPlayer(tp) then
+	if Duel.GetTurnPlayer()==tp then
 	local og=c:GetOverlayGroup()
 	Duel.ChangePosition(sg1,POS_FACEUP_ATTACK)
 	Duel.Remove(og,POS_FACEUP,REASON_RULE) end
-	if Duel.IsTurnPlayer(1-tp) then
+	if Duel.GetTurnPlayer()==1-tp then
 	Duel.ChangePosition(sg2,POS_FACEUP_ATTACK) end
 end
 function s.btdamcon(e,tp,eg,ep,ev,re,r,rp)

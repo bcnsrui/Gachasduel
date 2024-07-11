@@ -35,7 +35,7 @@ function Gacha.DuelStartop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Remove(token,POS_FACEDOWN,REASON_RULE)
 	maindeck=maindeck+1
 	end
-	if Duel.IsTurnPlayer(tp) then
+	if Duel.GetTurnPlayer()==tp then
 	Duel.SendtoDeck(ssg,nil,SEQ_DECKSHUFFLE,REASON_RULE)
 	Duel.Draw(tp,7,REASON_RULE)
 	Duel.Draw(1-tp,8,REASON_RULE)
@@ -55,14 +55,14 @@ function Gacha.DuelStartop(e,tp,eg,ep,ev,re,r,rp)
 	end
 	Duel.Draw(tp,#fg,REASON_RULE)
 	Duel.Draw(1-tp,#ffg,REASON_RULE)	end
-	while Duel.IsTurnPlayer(tp) and Duel.GetMatchingGroupCount(nil,tp,LOCATION_EXTRA,0,nil)<2 do
+	while Duel.GetTurnPlayer()==tp and Duel.GetMatchingGroupCount(nil,tp,LOCATION_EXTRA,0,nil)<2 do
 	local g=Duel.SelectMatchingCard(tp,nil,tp,LOCATION_HAND+LOCATION_EXTRA,0,1,1,nil):GetFirst()
 	if g:IsLocation(LOCATION_HAND) then
 	Duel.Sendto(g,LOCATION_EXTRA,REASON_RULE,POS_FACEDOWN)
 	elseif g:IsLocation(LOCATION_EXTRA) then
 	Duel.SendtoHand(g,nil,REASON_RULE)
 	elseif Duel.GetMatchingGroupCount(nil,tp,LOCATION_EXTRA,0,nil)>1 then return end end	
-	while Duel.IsTurnPlayer(1-tp) and Duel.GetMatchingGroupCount(nil,tp,LOCATION_EXTRA,0,nil)<3 do
+	while Duel.GetTurnPlayer()==1-tp and Duel.GetMatchingGroupCount(nil,tp,LOCATION_EXTRA,0,nil)<3 do
 	local g=Duel.SelectMatchingCard(tp,nil,tp,LOCATION_HAND+LOCATION_EXTRA,0,1,1,nil):GetFirst()
 	if g:IsLocation(LOCATION_HAND) then
 	Duel.Sendto(g,LOCATION_EXTRA,REASON_RULE,POS_FACEDOWN)
@@ -273,11 +273,11 @@ function Gacha.TurnPositionop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()	
 	local sg1=Duel.GetMatchingGroup(Gacha.TurnPositionfilter1,tp,LOCATION_ONFIELD,0,nil)
 	local sg2=Duel.GetMatchingGroup(Gacha.TurnPositionfilter2,tp,LOCATION_ONFIELD,0,nil)
-	if Duel.IsTurnPlayer(tp) then
+	if Duel.GetTurnPlayer()==tp then
 	local og=c:GetOverlayGroup()
 	Duel.ChangePosition(sg1,POS_FACEUP_ATTACK)
 	Duel.Remove(og,POS_FACEUP,REASON_RULE) end
-	if Duel.IsTurnPlayer(1-tp) then
+	if Duel.GetTurnPlayer()==1-tp then
 	Duel.ChangePosition(sg2,POS_FACEUP_ATTACK) end
 end
 function Gacha.btdamcon(e,tp,eg,ep,ev,re,r,rp)
@@ -308,7 +308,7 @@ function Gacha.handop(e,tp,eg,ep,ev,re,r,rp)
 end
 function Gacha.damcon(e)
 	local tp=e:GetHandlerPlayer()
-	return Duel.IsTurnPlayer(tp)
+	return Duel.GetTurnPlayer()==tp
 end
 
 --유희왕과 다른 룰(1메인2스킵,2공격대상안됨,3패매수제한X,4드로우불가,5표시형식변경불가,6공격불가,7선공배틀,8몬스터존10개)
