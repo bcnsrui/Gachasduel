@@ -25,6 +25,9 @@ end
 function Gacha.drawcon3(e,tp,eg,ep,ev,re,r,rp)
 	return tp==Duel.GetTurnPlayer() and Duel.GetTurnCount()==1
 end
+function Gacha.cost2filter(c)
+	return c:IsLevel(2)
+end
 function Gacha.DuelStartop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local ssg=Duel.GetFieldGroup(tp,LOCATION_HAND,LOCATION_HAND)
@@ -36,6 +39,10 @@ function Gacha.DuelStartop(e,tp,eg,ep,ev,re,r,rp)
 	maindeck=maindeck+1
 	end
 	if Duel.GetTurnPlayer()==tp then
+	if (Duel.GetMatchingGroupCount(Gacha.cost2filter,tp,LOCATION_DECK+LOCATION_HAND,0,nil)>5
+	or Duel.GetMatchingGroupCount(Gacha.cost2filter,tp,0,LOCATION_DECK+LOCATION_HAND,nil)>5)
+	and not (Duel.SelectYesNo(tp,aux.Stringid(11000002,5)) and Duel.SelectYesNo(1-tp,aux.Stringid(11000002,5)))
+	then return Duel.Win(tp,WIN_REASON_GHOSTRICK_MISCHIEF) end
 	Duel.SendtoDeck(ssg,nil,SEQ_DECKSHUFFLE,REASON_RULE)
 	Duel.Draw(tp,7,REASON_RULE)
 	Duel.Draw(1-tp,8,REASON_RULE)
@@ -71,7 +78,7 @@ function Gacha.DuelStartop(e,tp,eg,ep,ev,re,r,rp)
 	elseif Duel.GetMatchingGroupCount(nil,tp,LOCATION_EXTRA,0,nil)>2 then return end end
 end
 
---특이사항처리(1가챠덱0장이면채우기,2유닛카드=랭크,3티켓수=라이프)
+--특이사항처리(1가챠덱0장이면채우기,2유닛카드=랭크,3티켓수=라이프,5유닛존7제한)
 function Gacha.SpMainCharacter(c)
 	local e2=Effect.CreateEffect(c)
 	e2:SetType(EFFECT_TYPE_SINGLE)
@@ -94,6 +101,13 @@ function Gacha.SpMainCharacter(c)
 	e4:SetRange(LOCATION_EMZONE)
 	e4:SetValue(Gacha.defval)
 	c:RegisterEffect(e4)
+	local e5=Effect.CreateEffect(c)
+	e5:SetType(EFFECT_TYPE_FIELD)
+	e5:SetProperty(EFFECT_FLAG_REPEAT+EFFECT_FLAG_CANNOT_DISABLE)
+	e5:SetRange(LOCATION_EMZONE)
+	e5:SetCode(EFFECT_DISABLE_FIELD)
+	e5:SetOperation(Gacha.FieldTheRockop)
+	c:RegisterEffect(e5)
 end
 function Gacha.lvval(e,c)
 	return e:GetHandler():GetOverlayGroup():GetCount()
@@ -104,7 +118,9 @@ end
 function Gacha.defval(e,c)
 	return Duel.GetFieldGroupCount(c:GetControler(),LOCATION_EXTRA,0,nil)
 end
-
+function Gacha.FieldTheRockop(e,tp)
+	return 0x00001500
+end
 --드로우페이즈 처리
  function Gacha.DrawMainCharacter(c)
 	local e1=Effect.CreateEffect(c)
@@ -202,11 +218,12 @@ function Gacha.drawcon2(e,tp,eg,ep,ev,re,r,rp)
 end
 function Gacha.drawop2(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetFieldGroupCount(tp,LOCATION_HAND,0)==0 then return end
+	if Duel.GetFieldGroupCount(tp,LOCATION_EXTRA,0)<7 then
 	local ticketloss=Duel.SelectMatchingCard(tp,nil,tp,LOCATION_HAND,0,0,1,nil)
 	while #ticketloss==0 and not Duel.SelectYesNo(tp,aux.Stringid(11000002,1)) do
 	ticketloss=Duel.SelectMatchingCard(tp,nil,tp,LOCATION_HAND,0,0,1,nil)
 	end
-	Duel.Sendto(ticketloss,LOCATION_EXTRA,REASON_RULE,POS_FACEDOWN)
+	Duel.Sendto(ticketloss,LOCATION_EXTRA,REASON_RULE,POS_FACEDOWN) end
 	local c=e:GetHandler()
 	local extra=Duel.GetMatchingGroupCount(nil,tp,LOCATION_EXTRA,0,nil)
 	local caffe=Duel.GetMatchingGroupCount(Gacha.caffefilter,tp,LOCATION_ONFIELD,0,nil)
