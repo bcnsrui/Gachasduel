@@ -8,6 +8,7 @@ function Gacha.MainCharacter(c)
 	Gacha.SpMainCharacter(c)
 	Gacha.TurnPositionMainCharacter(c)
 	Gacha.MainCharacterEff(c)
+	Gacha.MainCharacterEff2(c)
 	Gacha.MainCharacterTextEff(c)
 end
 
@@ -335,7 +336,7 @@ function Gacha.MainCharacterEff(c)
 	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_CANNOT_DISABLE)
 	e1:SetRange(LOCATION_EMZONE)
 	e1:SetTargetRange(1,1)
-	e1:SetCode(EFFECT_SKIP_M2)
+	e1:SetCode(EFFECT_CANNOT_M2)
 	c:RegisterEffect(e1)
 	local e2=Effect.CreateEffect(c)
 	e2:SetType(EFFECT_TYPE_SINGLE)
@@ -384,6 +385,11 @@ function Gacha.MainCharacterEff(c)
 	e8:SetTargetRange(1,0)
 	c:RegisterEffect(e8)
 end
+
+function Gacha.MainCharacterEff2(c)
+end
+
+
 
 --텍스트(1퍼스트,2포춘)
 function Gacha.MainCharacterTextEff(c)
