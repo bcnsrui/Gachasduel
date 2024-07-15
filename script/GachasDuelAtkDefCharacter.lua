@@ -70,7 +70,9 @@ function Gacha3.battleop(e,tp,eg,ep,ev,re,r,rp)
 		e4:SetValue(def)
 		c:RegisterEffect(e4)
 		if tc:IsCode(11060001) and Duel.GetAttackTarget()==nil then
-		Gacha3.UrsaUnit(e,tp,eg,ep,ev,re,r,rp)	end
+		Gacha3.UrsaUnit(e,tp,eg,ep,ev,re,r,rp) end
+		if tc:IsCode(11050005) then
+		Gacha3.UlpianUnit(e,tp,eg,ep,ev,re,r,rp) end
 	end
 end
 
@@ -99,6 +101,24 @@ function Gacha3.UrsaUnit(e,tp,eg,ep,ev,re,r,rp)
 end
 function Gacha3.Ursafilter(c)
 	return c:IsPosition(POS_FACEUP_ATTACK) and c:IsLevelBelow(4) and not c:IsLocation(LOCATION_EMZONE+LOCATION_FZONE)
+end
+
+--울피안
+function Gacha3.UlpianUnit(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local g=Duel.GetMatchingGroup(Gacha3.Ulpianfilter,tp,0,LOCATION_ONFIELD,nil)
+	if #g==0 then return end
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_FIELD)
+	e1:SetCode(EFFECT_ADD_SETCODE)
+	e1:SetRange(LOCATION_ONFIELD)
+	e1:SetTargetRange(0,LOCATION_ONFIELD)
+	e1:SetValue(0xc03)
+	e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_DAMAGE_CAL)
+	c:RegisterEffect(e1)
+end
+function Gacha3.Ulpianfilter(c)
+	return not c:IsLocation(LOCATION_EMZONE+LOCATION_FZONE)
 end
 
 --1체방어(1 1체가드,2 액티브저격1체방어,3 레스트저격1체방어)

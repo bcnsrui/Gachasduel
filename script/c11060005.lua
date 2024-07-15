@@ -19,5 +19,5 @@ function s.fcfllter(c)
 end
 function s.fccondition(e)
 	local tp=e:GetHandlerPlayer()
-	return Duel.GetMatchingGroupCount(s.fcfllter,tp,0,LOCATION_ONFIELD,nil)>=5
+	return Duel.GetMatchingGroupCount(s.fcfllter,tp,0,LOCATION_ONFIELD,nil)>=5 and not e:GetHandler():IsSetCard(0xc03)
 end

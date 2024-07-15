@@ -6,7 +6,6 @@ function s.initial_effect(c)
 	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
 	e1:SetCode(EVENT_BATTLE_START)
 	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-	e1:SetCountLimit(1)
 	e1:SetRange(LOCATION_ONFIELD)
 	e1:SetCondition(s.cbcon)
 	e1:SetTarget(s.cbtg)
@@ -15,17 +14,21 @@ function s.initial_effect(c)
 end
 function s.cbcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetAttacker():IsControler(1-tp) and e:GetHandler():IsAttackPos() and Duel.GetAttackTarget()~=nil
-	and Duel.GetAttackTarget()~=e:GetHandler()
+	and Duel.GetAttackTarget()~=e:GetHandler() and Duel.GetAttackTarget():IsAttackPos()
 end
 function s.cbtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chk==0 then return true end
 	Duel.SetChainLimit(aux.FALSE)
 end
+function s.cbfilter(c)
+	return c:IsAttackPos() and not c:IsLocation(LOCATION_EMZONE+LOCATION_FZONE)
+	and not (c:IsSetCard(0xa02) or c:IsSetCard(0xb02))
+end
 function s.cbop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local at=Duel.GetAttacker()
 	Duel.ChangePosition(c,POS_FACEUP_DEFENSE)
-		local g=Duel.SelectMatchingCard(tp,Gacha2.btcounterfilter2,tp,LOCATION_ONFIELD,0,0,1,c)
+		local g=Duel.SelectMatchingCard(tp,s.cbfilter,tp,LOCATION_ONFIELD,0,0,1,c)
 		tc=g:GetFirst()
 		if #g==0 then
 		local e1=Effect.CreateEffect(c)

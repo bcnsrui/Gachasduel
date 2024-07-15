@@ -8,6 +8,7 @@ function s.initial_effect(c)
 	e1:SetCode(EFFECT_UPDATE_ATTACK)
 	e1:SetCondition(s.cond)
 	e1:SetTargetRange(LOCATION_ONFIELD,0)
+	e1:SetTarget(s.filter)
 	e1:SetValue(100)
 	c:RegisterEffect(e1)
 	local e2=e1:Clone()
@@ -16,4 +17,7 @@ function s.initial_effect(c)
 end
 function s.cond(e)
 	return Duel.GetTurnPlayer()~=e:GetHandlerPlayer() and Duel.IsBattlePhase()
+end
+function s.filter(e,c)
+	return not c:IsLocation(LOCATION_EMZONE+LOCATION_FZONE) and c:IsLevelAbove(3) and not c:IsSetCard(0xc03)
 end

@@ -11,7 +11,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e1)
 end
 function s.con(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsSetCard(0xa05)
+	return e:GetHandler():IsSetCard(0xa05) and not e:GetHandler():IsSetCard(0xc03)
 end
 function s.filter(c)
 	return c:IsSetCard(0xa05) and c:IsLevel(4)
