@@ -14,6 +14,7 @@ function s.filter(c)
 	and c:IsLevelBelow(2) and not c:IsSetCard(0xb01)
 end
 function s.atklimit(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
 	local g=Duel.SelectMatchingCard(tp,s.filter,tp,0,LOCATION_ONFIELD,0,2,nil)
 	if #g>0 then
 	Duel.HintSelection(g)

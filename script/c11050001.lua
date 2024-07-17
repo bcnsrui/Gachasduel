@@ -12,11 +12,43 @@ end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local deck=Duel.GetMatchingGroup(nil,tp,LOCATION_DECK,0,nil)
+	local deckcount=Duel.GetMatchingGroupCount(nil,tp,LOCATION_DECK,0,nil)
 	local refill=Duel.GetMatchingGroup(nil,tp,LOCATION_GRAVE,0,nil)
+	local grave=Duel.GetMatchingGroupCount(nil,tp,LOCATION_GRAVE,0,nil)
+	local tc=Duel.GetMatchingGroup(nil,tp,LOCATION_EMZONE,0,nil):GetFirst()
+	if deckcount+grave==0 then
+	Duel.SetLP(tp,444)
+	local e1=Effect.CreateEffect(tc)
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE+EFFECT_FLAG_CANNOT_DISABLE)
+	e1:SetCode(EFFECT_ADD_SETCODE)
+	e1:SetRange(LOCATION_ONFIELD)
+	e1:SetValue(0xa09)
+	tc:RegisterEffect(e1)
+	elseif deckcount+grave<2 then
+	local g=Duel.GetMatchingGroup(nil,tp,LOCATION_DECK+LOCATION_GRAVE,0,nil):GetFirst()
+	Duel.Remove(g,POS_FACEDOWN,REASON_EFFECT)
+	Duel.SetLP(tp,444)
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+	e1:SetCode(EFFECT_ADD_SETCODE)
+	e1:SetRange(LOCATION_REMOVED)
+	e1:SetReset(RESET_EVENT+RESET_TOHAND)
+	e1:SetValue(0xa03)
+	g:RegisterEffect(e1)
+	local e2=Effect.CreateEffect(tc)
+	e2:SetType(EFFECT_TYPE_SINGLE)
+	e2:SetProperty(EFFECT_FLAG_SINGLE_RANGE+EFFECT_FLAG_CANNOT_DISABLE)
+	e2:SetCode(EFFECT_ADD_SETCODE)
+	e2:SetRange(LOCATION_ONFIELD)
+	e2:SetValue(0xa09)
+	tc:RegisterEffect(e2)
+	else
 	if Duel.GetMatchingGroupCount(nil,tp,LOCATION_DECK,0,nil)<2 then
 	Duel.SendtoGrave(deck,REASON_RULE)
 	Duel.SendtoDeck(refill,nil,SEQ_DECKSHUFFLE,REASON_RULE)
-	Duel.SendtoDeck(deck,nil,0,REASON_RULE)	end
+	Duel.SendtoDeck(deck,nil,0,REASON_RULE)	end	
 	local g=Duel.GetDecktopGroup(tp,2)
 	if #g<2 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,aux.Stringid(id,0))
@@ -32,4 +64,5 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	sg:GetFirst():RegisterEffect(e1)
 	g:Sub(sg)
 	Duel.SendtoGrave(g,REASON_EFFECT)
+	end
 end

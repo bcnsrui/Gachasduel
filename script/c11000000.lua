@@ -46,15 +46,7 @@ function s.initial_effect(c)
 	e4:SetCondition(Gacha.damcon)
 	e4:SetValue(0)
 	c:RegisterEffect(e4)
-	local e2=Effect.CreateEffect(c)
-	e2:SetCategory(CATEGORY_POSITION)
-	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-	e2:SetCode(EVENT_PHASE+PHASE_END)
-	e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-	e2:SetRange(LOCATION_EMZONE)
-	e2:SetCountLimit(1)
-	e2:SetOperation(s.TurnPositionop)
-	c:RegisterEffect(e2)
+	Gacha.TurnPositionMainCharacter(c)
 	local e3=Effect.CreateEffect(c)
 	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 	e3:SetProperty(EFFECT_FLAG_DAMAGE_STEP)
@@ -203,24 +195,6 @@ function s.draw(e,tp,eg,ep,ev,re,r,rp)
     Duel.SendtoHand(ag2:GetFirst(),nil,REASON_RULE) end
 end end
 
-function s.TurnPositionfilter1(c)
-	return c:IsDefensePos() and not c:IsLocation(LOCATION_EMZONE)
-	and not c:IsCode(11030005)
-end
-function s.TurnPositionfilter2(c)
-	return c:IsDefensePos() and not c:IsLocation(LOCATION_EMZONE)
-end
-function s.TurnPositionop(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()	
-	local sg1=Duel.GetMatchingGroup(s.TurnPositionfilter1,tp,LOCATION_ONFIELD,0,nil)
-	local sg2=Duel.GetMatchingGroup(s.TurnPositionfilter2,tp,LOCATION_ONFIELD,0,nil)
-	if Duel.GetTurnPlayer()==tp then
-	local og=c:GetOverlayGroup()
-	Duel.ChangePosition(sg1,POS_FACEUP_ATTACK)
-	Duel.Remove(og,POS_FACEUP,REASON_RULE) end
-	if Duel.GetTurnPlayer()==1-tp then
-	Duel.ChangePosition(sg2,POS_FACEUP_ATTACK) end
-end
 function s.btdamcon(e,tp,eg,ep,ev,re,r,rp)
 	return ep==tp and tp~=rp and r&REASON_BATTLE~=0 and Duel.GetAttacker():IsControler(1-tp)
 end

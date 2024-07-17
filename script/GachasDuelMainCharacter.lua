@@ -64,6 +64,7 @@ function Gacha.DuelStartop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Draw(tp,#fg,REASON_RULE)
 	Duel.Draw(1-tp,#ffg,REASON_RULE)	end
 	while Duel.GetTurnPlayer()==tp and Duel.GetMatchingGroupCount(nil,tp,LOCATION_EXTRA,0,nil)<2 do
+	Duel.Hint(HINT_SELECTMSG,tp,aux.Stringid(11000002,8))
 	local g=Duel.SelectMatchingCard(tp,nil,tp,LOCATION_HAND+LOCATION_EXTRA,0,1,1,nil):GetFirst()
 	if g:IsLocation(LOCATION_HAND) then
 	Duel.Sendto(g,LOCATION_EXTRA,REASON_RULE,POS_FACEDOWN)
@@ -79,7 +80,7 @@ function Gacha.DuelStartop(e,tp,eg,ep,ev,re,r,rp)
 	elseif Duel.GetMatchingGroupCount(nil,tp,LOCATION_EXTRA,0,nil)>2 then return end end
 end
 
---특이사항처리(1가챠덱0장이면채우기,2유닛카드=랭크,3티켓수=라이프,5유닛존7제한)
+--특이사항처리(2유닛카드=랭크,3티켓수=라이프,5유닛존7제한)
 function Gacha.SpMainCharacter(c)
 	local e2=Effect.CreateEffect(c)
 	e2:SetType(EFFECT_TYPE_SINGLE)
@@ -220,6 +221,7 @@ end
 function Gacha.drawop2(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetFieldGroupCount(tp,LOCATION_HAND,0)==0 then return end
 	if Duel.GetFieldGroupCount(tp,LOCATION_EXTRA,0)<7 then
+	Duel.Hint(HINT_SELECTMSG,tp,aux.Stringid(11000002,8))
 	local ticketloss=Duel.SelectMatchingCard(tp,nil,tp,LOCATION_HAND,0,0,1,nil)
 	while #ticketloss==0 and not Duel.SelectYesNo(tp,aux.Stringid(11000002,1)) do
 	ticketloss=Duel.SelectMatchingCard(tp,nil,tp,LOCATION_HAND,0,0,1,nil)
@@ -230,17 +232,51 @@ function Gacha.drawop2(e,tp,eg,ep,ev,re,r,rp)
 	local caffe=Duel.GetMatchingGroupCount(Gacha.caffefilter,tp,LOCATION_ONFIELD,0,nil)
 	local deck=Duel.GetMatchingGroup(nil,tp,LOCATION_DECK,0,nil)
 	local deckcount=Duel.GetMatchingGroupCount(nil,tp,LOCATION_DECK,0,nil)
-	local grave=Duel.GetMatchingGroupCount(nil,tp,LOCATION_GRAVE,0,nil)
 	local refill=Duel.GetMatchingGroup(nil,tp,LOCATION_GRAVE,0,nil)
-	if extra+caffe>deckcount+grave then Duel.Win(1-tp,WIN_REASON_GHOSTRICK_MISCHIEF)
-	elseif extra+caffe>deckcount then
+	local grave=Duel.GetMatchingGroupCount(nil,tp,LOCATION_GRAVE,0,nil)
+	if caffe==0 then
+	if extra>deckcount+grave then 
+	Duel.SetLP(tp,444)
+	Duel.Overlay(c,deck)
+	Duel.Overlay(c,refill)
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE+EFFECT_FLAG_CANNOT_DISABLE)
+	e1:SetCode(EFFECT_ADD_SETCODE)
+	e1:SetRange(LOCATION_ONFIELD)
+	e1:SetValue(0xa09)
+	c:RegisterEffect(e1)
+	elseif extra>deckcount and extra<=deckcount+grave then
 	Duel.Overlay(c,deck)
 	Duel.SendtoDeck(refill,nil,SEQ_DECKSHUFFLE,REASON_RULE)
-	local bg=Duel.GetDecktopGroup(tp,extra+caffe-deckcount)
+	local bg=Duel.GetDecktopGroup(tp,extra-deckcount)
 	Duel.Overlay(c,bg)
 	else
-	local bg2=Duel.GetDecktopGroup(tp,extra+caffe)
-	Duel.Overlay(c,bg2)
+	local bg2=Duel.GetDecktopGroup(tp,extra)
+	Duel.Overlay(c,bg2) end
+	
+	else
+	Duel.Hint(HINT_SELECTMSG,tp,aux.Stringid(11000002,6))
+	local ac=Duel.AnnounceNumber(tp,0,1,caffe)
+	if extra+ac>deckcount+grave then 
+	Duel.SetLP(tp,444)
+	Duel.Overlay(c,deck)
+	Duel.Overlay(c,refill)
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE+EFFECT_FLAG_CANNOT_DISABLE)
+	e1:SetCode(EFFECT_ADD_SETCODE)
+	e1:SetRange(LOCATION_ONFIELD)
+	e1:SetValue(0xa09)
+	c:RegisterEffect(e1)
+	elseif extra+ac>deckcount and extra+ac<=deckcount+grave then
+	Duel.Overlay(c,deck)
+	Duel.SendtoDeck(refill,nil,SEQ_DECKSHUFFLE,REASON_RULE)
+	local bg=Duel.GetDecktopGroup(tp,extra+ac-deckcount)
+	Duel.Overlay(c,bg)
+	else
+	local bg2=Duel.GetDecktopGroup(tp,extra+ac)
+	Duel.Overlay(c,bg2) end
 	end
 end
 
@@ -288,7 +324,8 @@ function Gacha.TurnPositionfilter2(c)
 	return c:IsDefensePos() and not c:IsLocation(LOCATION_EMZONE)
 end
 function Gacha.TurnPositionop(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()	
+	local c=e:GetHandler()
+	if c:IsSetCard(0xa09) then return Duel.Win(1-tp,WIN_REASON_GHOSTRICK_MISCHIEF) end
 	local sg1=Duel.GetMatchingGroup(Gacha.TurnPositionfilter1,tp,LOCATION_ONFIELD,0,nil)
 	local sg2=Duel.GetMatchingGroup(Gacha.TurnPositionfilter2,tp,LOCATION_ONFIELD,0,nil)
 	if Duel.GetTurnPlayer()==tp then
@@ -391,7 +428,7 @@ end
 
 
 
---텍스트(1퍼스트,2포춘)
+--텍스트(1턴종료시패배)
 function Gacha.MainCharacterTextEff(c)
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
@@ -401,36 +438,17 @@ function Gacha.MainCharacterTextEff(c)
 	e1:SetCondition(Gacha.hintcon)
 	e1:SetOperation(Gacha.hintop)
 	c:RegisterEffect(e1)
-	local e2=Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-	e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-	e2:SetCode(EVENT_ADJUST)
-	e2:SetRange(LOCATION_ONFIELD)
-	e2:SetCondition(Gacha.hintcon2)
-	e2:SetOperation(Gacha.hintop2)
-	c:RegisterEffect(e2)
 end
 function Gacha.hintcon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsSetCard(0xa10)
+	return e:GetHandler():IsSetCard(0xa09)
 end
 function Gacha.hintop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(11040015,0))
-	e1:SetType(EFFECT_TYPE_SINGLE)
-	e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE)
+	e1:SetType(EFFECT_TYPE_FIELD)
+	e1:SetDescription(aux.Stringid(11000002,7))
+	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE)
 	e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-	c:RegisterEffect(e1)
-end
-function Gacha.hintcon2(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsSetCard(0xb07)
-end
-function Gacha.hintop2(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(11000002,3))
-	e1:SetType(EFFECT_TYPE_SINGLE)
-	e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE)
-	e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-	c:RegisterEffect(e1)
+	e1:SetTargetRange(1,0)
+	Duel.RegisterEffect(e1,tp)
 end
