@@ -341,8 +341,6 @@ end
 function Gacha.btdamop(e,tp,eg,ep,ev,re,r,rp)
 	local ct=Duel.GetMatchingGroup(Card.IsFacedown,tp,LOCATION_EXTRA,0,nil)
 	if #ct==0 then return Duel.Win(1-tp,WIN_REASON_GHOSTRICK_MISCHIEF) end
-	local ct2=Duel.GetMatchingGroup(Card.IsFaceup,tp,LOCATION_EXTRA,0,nil)	
-	if #ct2==7 then return Duel.Win(1-tp,WIN_REASON_GHOSTRICK_MISCHIEF) end
 	local last=ct:GetFirst()
 	local tc=ct:GetNext()
 	for tc in aux.Next(ct) do
